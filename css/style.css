@@ -147,6 +147,15 @@ button.gamma-btn-close:before {
 	content: '\2715';
 }
 
+button.gamma-btn-view {
+    width: 130px;
+    display: none;
+}
+
+button.gamma-btn-view:before {
+	content: 'Full image';
+}
+
 button.gamma-btn-ssplay:before {
 	content: '\25b6';
 }

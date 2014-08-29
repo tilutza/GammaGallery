@@ -169,6 +169,10 @@ var Gamma = (function() {
 			overlayAnimated : true,
 			// if true, the navigate next function is called when the image (singleview) is clicked
 			nextOnClickImage : true,
+			// if true, then view the big image on click
+			viewBigOnClickImage: false,
+            // if true, then view the Full Image button
+			viewFullImageButton: false,
 			// circular navigation
 			circular : true,
 			// transition settings for the image in the single view.
@@ -256,12 +260,17 @@ var Gamma = (function() {
 
 			if( !Gamma.singleview ) {
 
-				$( '<div class="gamma-single-view"><div class="gamma-options gamma-options-single"><div class="gamma-buttons"><button class="gamma-btn-close"></button></div></div></div>' )
+				$('<div class="gamma-single-view"><div class="gamma-options gamma-options-single"><div class="gamma-buttons"><button class="gamma-btn-view"></button><button class="gamma-btn-close"></button></div></div></div>')
 				.appendTo( Gamma.container );
 
 				Gamma.singleview = Gamma.container.children( 'div.gamma-single-view' );
-				Gamma.svclose = Gamma.singleview.find( 'button.gamma-btn-close' );
+				Gamma.svclose = Gamma.singleview.find('button.gamma-btn-close');
 
+				if (Gamma.settings.viewFullImageButton) {
+				    Gamma.fullImageButton = Gamma.singleview.find('button.gamma-btn-view');
+				    Gamma.fullImageButton.css({ display: "block" });
+				}
+				
 				_initEvents( 'singleview' );
 
 				_createSingleViewNavigation();
@@ -1263,6 +1272,13 @@ var Gamma = (function() {
 					Gamma.gallery.on( 'click.gamma', 'li', _singleview );
 					Gamma.svclose.on( 'click.gamma', _closesingleview );
 
+					if (Gamma.fullImageButton) {
+					    Gamma.fullImageButton.on('click.gamma', function () {
+					        var imageAddress = _getHighQualityImage($(Gamma.items[Gamma.current]).data().source).src || e.currentTarget.src;
+					        window.location = imageAddress;
+					    });
+					}
+					
 					break;
 
 				case 'singleviewnavigation' : 
@@ -1274,6 +1290,16 @@ var Gamma = (function() {
 
 						Gamma.singleview.on( 'click.gamma', 'img', function() { _onnavigate( 'next' ); } );
 
+					} else {
+					
+					    if (Gamma.settings.viewBigOnClickImage) {
+					        Gamma.singleview.on('click.gamma', 'img', function (e) {
+					            var imageAddress = _getHighQualityImage($(e.currentTarget).data().source).src || e.currentTarget.src;
+
+					            window.location = imageAddress;
+					        });
+					    }
+						
 					}
 
 					if ( Gamma.settings.keyboard ) {
@@ -1343,6 +1369,17 @@ var Gamma = (function() {
 			};
 
 		},
+		//get high resolution image 
+        _getHighQualityImage = function (source) {
+
+            var result = source[0];
+            for (var i = 1 ; i < source.length ; i++) {
+                if (source[i].width > result.width)
+                    result = source[i];
+            }
+            return result;
+
+        },
 		// sets a transition for an element
 		_setTransition = function( el , property, speed, easing ) {
 
