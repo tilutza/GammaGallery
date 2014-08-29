@@ -396,11 +396,12 @@ var Gamma = (function() {
 			// replace each div element with an image element with the right source
 			$items.each( function() {
 
-				var $item = $( this ),
+			    var $item = $(this),
 					$picEl = $item.children(),
 					sources = _getImgSources( $picEl ),
 					source = _chooseImgSource( sources, $item.outerWidth( true ) ),
-					description = $picEl.data( 'description' );
+					description = $picEl.data( 'description' ),
+                    url = $picEl.data("url");
 
 				// data is saved in the <li> element
 				$item.data( {
@@ -410,14 +411,29 @@ var Gamma = (function() {
 					maxheight : $picEl.data( 'maxHeight' )
 				} );
 
-				$( '<div/>' ).addClass( 'gamma-description' ).html( description ).insertAfter( $picEl );
+				var overlay = $('<a />');
+				if (url != null) {
+				    overlay.attr("href", url);
+				}
+				overlay.addClass('gamma-description').html(description).insertAfter($picEl);
 
-				$( '<img/>' ).attr( {
-					alt : $picEl.data( 'alt' ),
-					title : $picEl.data( 'title' ),
-					src : source.src
-				} ).insertAfter( $picEl );
+				var img = $('<img/>').attr({
+				    alt: $picEl.data('alt'),
+				    title: $picEl.data('title'),
+				    src: source.src
+				});
 
+				if (url != null) {
+				    var anchor = $('<a href="' + url + '" />');
+				    img.appendTo(anchor);
+				    anchor.insertAfter($picEl);
+				}
+				else
+				{
+				    img.insertAfter($picEl);
+				}
+
+				
 				$picEl.remove();
 
 			} );
@@ -475,7 +491,7 @@ var Gamma = (function() {
 				Gamma.gallery.masonry( {
 					itemSelector : 'li',
 					columnWidth : function( containerWidth ) {
-						return containerWidth / Gamma.columns;
+					    return containerWidth / Gamma.columns;
 					}
 				} );
 
@@ -747,7 +763,7 @@ var Gamma = (function() {
 
 			var id = $item.index(),
 				data = $item.data(),
-				$img = $item.children( 'img' );
+				$img = $item.find( 'img' );
 				
 			if( anim ) {
 
